@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MindAR</title>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>
+html, body {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+a-scene {
+  position: fixed !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  top: 0; left: 0;
+}
+#log {
+  position: fixed;
+  bottom: 0; left: 0;
+  width: 100%;
+  max-height: 30vh;
+  overflow-y: auto;
+  background: rgba(0,0,0,0.65);
+  color: #00ff88;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  z-index: 9999;
+  pointer-events: none;
+}
+#log-clear {
+  position: fixed;
+  bottom: 4px; right: 8px;
+  z-index: 10000;
+  background: rgba(0,0,0,0.5);
+  color: #aaa;
+  border: none;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+</style>
+</head>
+<body>
+
+<div id="log"></div>
+<button id="log-clear" onclick="document.getElementById('log').innerHTML=''">clear</button>
+
+<a-scene
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true"
+  mindar-image="
+    imageTargetSrc: ./targets.mind;
+    autoStart: true;
+    uiLoading: true;
+    uiScanning: true;
+    uiError: true;
+    filterMinCF: 0.001;
+    filterBeta: 0.01;
+    maxTrack: 1;
+  "
+>
+  <a-assets>
+    <img id="myImage" src="./image1.png" crossorigin="anonymous">
+  </a-assets>
+
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-plane
+      src="#myImage"
+      width="1"
+      height="1"
+      position="0 0 0"
+      material="shader: flat; transparent: true; alphaTest: 0.5"
+    ></a-plane>
+  </a-entity>
+</a-scene>
+
+<script>
+const logEl = document.getElementById('log');
+function log(msg, color) {
+  const t = new Date().toTimeString().slice(0,8);
+  const line = document.createElement('div');
+  line.style.color = color || '#00ff88';
+  line.textContent = '[' + t + '] ' + msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+  console.log(msg);
+}
+
+window.onerror = (msg, url, line) => log('JS ERROR: ' + msg + ' (line ' + line + ')', '#ff5555');
+
+window.addEventListener('load', () => log('window loaded'));
+
+const scene = document.querySelector('a-scene');
+scene.addEventListener('loaded',  () => log('scene loaded'));
+scene.addEventListener('arReady', () => log('AR READY', '#88ffcc'));
+scene.addEventListener('arError', () => log('AR ERROR', '#ff5555'));
+
+const target = document.querySelector('[mindar-image-target]');
+target.addEventListener('targetFound', () => log('TARGET FOUND ✓', '#ffdd55'));
+target.addEventListener('targetLost',  () => log('TARGET LOST',  '#aaaaaa'));
+
+document.querySelector('#myImage').addEventListener('load',  () => log('image loaded'));
+document.querySelector('#myImage').addEventListener('error', () => log('image ERROR — image1.png が見つからない', '#ff5555'));
+</script>
+
+</body>
+</html>
