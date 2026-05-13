@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MindAR</title>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+a-scene { position: fixed !important; width: 100vw !important; height: 100vh !important; top: 0; left: 0; }
+</style>
+</head>
+<body>
+
+<a-scene
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true"
+  mindar-image="
+    imageTargetSrc: ./targets.mind;
+    autoStart: true;
+    uiLoading: true;
+    uiScanning: true;
+    uiError: true;
+    filterMinCF: 0.001;
+    filterBeta: 0.01;
+    maxTrack: 1;
+  "
+>
+
+  <!-- ★ a-assets でプリロード -->
+  <a-assets>
+    <img id="myImage" src="./image1.png" crossorigin="anonymous">
+  </a-assets>
+
+  <!-- ★ a-camera は削除 — MindAR が自動生成する -->
+
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-plane
+      src="#myImage"
+      width="1"
+      height="1"
+      position="0 0 0"
+      rotation="0 0 0"
+      material="shader: flat; transparent: true; alphaTest: 0.5"
+    ></a-plane>
+  </a-entity>
+
+</a-scene>
+
+</body>
+</html>
